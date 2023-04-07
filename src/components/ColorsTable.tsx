@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Color } from "../models/Color.model";
 import ColorsTableItem from "./ColorsTableItem";
 import Button from "react-bootstrap/Button";
@@ -32,6 +32,14 @@ function ColorsTable() {
   const [moreBlue, setMoreBlue] = React.useState(false);
   const [moreSaturation, setMoreSaturation] = React.useState(false);
 
+  useEffect(() => {
+    const tempColor: Color[] = JSON.parse(
+      localStorage.getItem("dataKey") || "[]"
+    );
+    setColorsArray(tempColor);
+    console.log(tempColor);
+  }, []);
+
   const onChangeHandlerValue = (event: any) => {
     setInputValue(event.target.value);
   };
@@ -47,6 +55,10 @@ function ColorsTable() {
       regexp.test(inputValue) &&
       !colorsArray.some((item: Color) => item["hex"] === inputValue)
     ) {
+      localStorage.setItem(
+        "dataKey",
+        JSON.stringify([...colorsArray, { hex: inputValue, default: false }])
+      );
       setColorsArray((oldArray) => [
         ...oldArray,
         { hex: inputValue, default: false },
@@ -61,6 +73,7 @@ function ColorsTable() {
   const removeFromListByName = (hex: string) => {
     const newList = colorsArray.filter((item: Color) => item.hex !== hex);
     setColorsArray(newList);
+    localStorage.setItem("dataKey", JSON.stringify(newList));
   };
 
   function compare(hex1: Color, hex2: Color) {
@@ -87,6 +100,16 @@ function ColorsTable() {
           />
           <Form.Text className="text-muted">{validText}</Form.Text>
         </Form.Group>
+        <div className="d-grid gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            onClick={() => addColorToArray()}
+          >
+            Add
+          </Button>
+        </div>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Sort</Form.Label>
           <Form.Select
@@ -135,16 +158,7 @@ function ColorsTable() {
           />
         </Form.Group>
       </Form>
-      <div className="d-grid gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          onClick={() => addColorToArray()}
-        >
-          Add
-        </Button>
-      </div>
+
       <div style={styles.colorsSection as React.CSSProperties}>
         {colorsArray
           .filter((item: Color) =>

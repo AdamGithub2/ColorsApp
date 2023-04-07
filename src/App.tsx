@@ -4,7 +4,7 @@ import ColorsTable from "./components/ColorsTable";
 
 function App() {
   return (
-    <div>
+    <div style={{ minWidth: 245 }}>
       <ColorsTable />
     </div>
   );
